@@ -194,6 +194,15 @@ a:hover { text-decoration: underline; }
 
 .filter-wrap select:focus { border-color: var(--accent); }
 
+/* A <select> sizes itself to its longest <option>; long feed names would
+   otherwise push the page wider than a phone screen */
+.filter-wrap { min-width: 0; max-width: 100%; }
+.filter-wrap select { min-width: 0; max-width: 100%; text-overflow: ellipsis; }
+@media (max-width: 600px) {
+  .filter-wrap { flex: 1 1 100%; }
+  .filter-wrap select { flex: 1; }
+}
+
 /* ─── Main layout ───────────────────────────────────────────────────────── */
 .main-layout {
   max-width: 1280px;
