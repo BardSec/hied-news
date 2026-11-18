@@ -1,4 +1,4 @@
-/* HiEd Cyber News — frontend */
+/* HiEd Security News — frontend */
 
 const API = '';          // same origin; relative data paths work on Pages and in Docker
 const PAGE_SIZE = 15;
