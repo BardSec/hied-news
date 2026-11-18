@@ -30,7 +30,6 @@ const statTotal     = document.getElementById('stat-total');
 const statSources   = document.getElementById('stat-sources');
 const statRefresh   = document.getElementById('stat-refresh');
 const sourceList    = document.getElementById('source-list');
-const btnRefresh    = document.getElementById('btn-refresh');
 const tagCloud      = document.getElementById('tag-cloud');
 const cardTpl       = document.getElementById('card-tpl');
 const skeletonTpl   = document.getElementById('skeleton-tpl');
@@ -226,7 +225,6 @@ function applyFilters() {
 async function fetchArticles() {
   if (state.loading) return;
   state.loading = true;
-  btnRefresh.classList.add('spinning');
   showSkeletons();
 
   try {
@@ -258,7 +256,6 @@ async function fetchArticles() {
       </div>`;
   } finally {
     state.loading = false;
-    btnRefresh.classList.remove('spinning');
     updateStats();
   }
 }
@@ -293,7 +290,6 @@ sortSelect.addEventListener('change', () => {
   applyFilters();
 });
 
-btnRefresh.addEventListener('click', () => fetchArticles());
 
 tagCloud.addEventListener('click', e => {
   const tag = e.target.closest('.tag');
