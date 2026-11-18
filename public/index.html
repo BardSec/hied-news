@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HiEd Cyber News — Cybersecurity News for Higher Ed IT</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">🎓</span>
+        <div>
+          <span class="logo-title">HiEd Cyber News</span>
+          <span class="logo-sub">Cybersecurity News for Higher Ed IT</span>
+        </div>
+      </div>
+
+      <div class="header-meta">
+        <span class="badge live">● LIVE FEED</span>
+        <button id="btn-refresh" class="btn-icon" title="Reload latest articles">↻</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Controls bar ── -->
+  <div class="controls-bar">
+    <div class="controls-inner">
+      <!-- Search -->
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input
+          id="search-input"
+          type="search"
+          placeholder="Search articles…"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Category filter -->
+      <div class="filter-wrap">
+        <label for="category-select">Show</label>
+        <select id="category-select">
+          <option value="">Everything</option>
+          <option value="higher-ed">Higher Ed news</option>
+          <option value="threat">Threat Watch</option>
+        </select>
+      </div>
+
+      <!-- Source filter -->
+      <div class="filter-wrap">
+        <label for="source-select">Source</label>
+        <select id="source-select">
+          <option value="">All Sources</option>
+        </select>
+      </div>
+
+      <!-- Sort -->
+      <div class="filter-wrap">
+        <label for="sort-select">Sort</label>
+        <select id="sort-select">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main layout ── -->
+  <main class="main-layout">
+
+    <!-- Feed -->
+    <section class="feed-section">
+      <div class="feed-header">
+        <h2 id="feed-title">Latest Articles</h2>
+        <span id="article-count" class="count-badge"></span>
+      </div>
+
+      <div id="feed" class="feed"></div>
+
+      <div id="pagination" class="pagination"></div>
+    </section>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+      <div class="sidebar-card">
+        <h3>About This Feed</h3>
+        <p>
+          HiEd Cyber News collects cybersecurity news for college and
+          university IT and security teams: campus breaches and ransomware,
+          ghost-student and financial-aid fraud, GLBA and FERPA compliance, and
+          EDUCAUSE and REN-ISAC updates. The feed is rebuilt automatically every
+          30 minutes.
+        </p>
+        <p class="sidebar-note">
+          <span class="cat-badge threat">Threat Watch</span> stories aren't
+          about higher ed. They cover attacks and vulnerabilities in technology
+          campuses commonly run, such as Microsoft 365, Ellucian, Canvas,
+          Fortinet, Ivanti and VMware, and CISA's actively exploited list.
+        </p>
+      </div>
+
+      <div class="sidebar-card">
+        <h3>Key Topics</h3>
+        <div class="tag-cloud" id="tag-cloud">
+          <span class="tag" data-q="ransomware">Ransomware</span>
+          <span class="tag" data-q="data breach">Data Breach</span>
+          <span class="tag" data-q="phishing">Phishing</span>
+          <span class="tag" data-q="ghost students">Ghost Students</span>
+          <span class="tag" data-q="financial aid">Financial Aid</span>
+          <span class="tag" data-q="community college">Community Colleges</span>
+          <span class="tag" data-q="GLBA">GLBA</span>
+          <span class="tag" data-q="FERPA">FERPA</span>
+          <span class="tag" data-q="Known Exploited">CISA KEV</span>
+          <span class="tag" data-q="Microsoft 365">Microsoft 365</span>
+          <span class="tag" data-q="Ellucian">Ellucian</span>
+          <span class="tag" data-q="Canvas">Canvas</span>
+          <span class="tag" data-q="EDUCAUSE">EDUCAUSE</span>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <h3>Sources</h3>
+        <ul id="source-list" class="source-list"></ul>
+      </div>
+
+      <div class="sidebar-card stat-card">
+        <div class="stat">
+          <span id="stat-total">—</span>
+          <small>Articles indexed</small>
+        </div>
+        <div class="stat">
+          <span id="stat-sources">—</span>
+          <small>News sources</small>
+        </div>
+        <div class="stat">
+          <span id="stat-refresh">—</span>
+          <small>Last refreshed</small>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- ── Skeleton template ── -->
+  <template id="skeleton-tpl">
+    <article class="card skeleton">
+      <div class="sk-line sk-title"></div>
+      <div class="sk-line sk-meta"></div>
+      <div class="sk-line sk-body"></div>
+      <div class="sk-line sk-body short"></div>
+    </article>
+  </template>
+
+  <!-- ── Article card template ── -->
+  <template id="card-tpl">
+    <article class="card">
+      <div class="card-source-row">
+        <span class="card-source"></span>
+        <span class="cat-badge"></span>
+        <time class="card-date"></time>
+      </div>
+      <h3 class="card-title"><a class="card-link" target="_blank" rel="noopener noreferrer"></a></h3>
+      <p class="card-summary"></p>
+      <a class="card-read-more" target="_blank" rel="noopener noreferrer">Read full article →</a>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>

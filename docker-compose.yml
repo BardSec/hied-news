@@ -1,0 +1,16 @@
+services:
+  hied-news:
+    build: .
+    container_name: hied-news
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:30305:30305"
+    environment:
+      - NODE_ENV=production
+      - PORT=30305
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:30305/api/sources"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s

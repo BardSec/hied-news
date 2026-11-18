@@ -1,0 +1,90 @@
+# HiEd Cyber News
+
+A news aggregator for **higher-ed IT and cybersecurity teams**. It collects campus cyber incidents, ghost-student and financial-aid fraud, GLBA/FERPA compliance and EDUCAUSE/REN-ISAC news, plus general attacks and vulnerabilities that are likely to hit colleges and universities. It pulls from 26 sources, filters for relevance, deduplicates and shows the results in a searchable web page.
+
+Live site: https://hied-news.edtechirl.com (also https://hied-news.pages.dev)
+
+Companion to [k12-cyber-news](../k12-cyber-news) (K12) and [ressec-news](../ressec-news) (research security).
+
+## Categories
+
+Every article is tagged with one of two categories, shown as a badge and filterable with **Show**:
+
+- **Higher Ed:** the story is about colleges, universities or the higher-ed sector.
+- **Threat Watch:** a general security story that isn't about higher ed but names technology campuses commonly run: ERP/SIS/LMS platforms (Ellucian, PeopleSoft, Workday, Canvas, D2L…), identity and collaboration (Microsoft 365, Okta, Duo, Shibboleth, Google Workspace…), edge and infrastructure (Fortinet, Ivanti, Citrix, Palo Alto, VMware…), file-transfer tools (MOVEit, GoAnywhere…), CISA's Known Exploited Vulnerabilities additions and Patch Tuesday.
+
+Product matching only looks at the headline and the first 400 characters of the summary, so stories that mention a product in passing don't count. The list is `IMPACT_KEYWORDS` in `lib/aggregator.js`.
+
+## How it works
+
+- **Production:** a static site on Cloudflare Pages. A GitHub Actions workflow (`.github/workflows/deploy.yml`) runs every 30 minutes. It fetches every feed, writes `dist/data/articles.json` and deploys `dist/` to Pages. If the fetch looks unhealthy (fewer than 20 articles, or more than half the feeds failing), the build fails and the last good deploy stays live.
+- **Local dev / Docker:** `server.js` serves the same frontend and the same `/data/*.json` paths from an in-memory cache that refreshes every 15 minutes.
+
+Both use the same feed list and filters in `lib/aggregator.js`.
+
+## Sources
+
+| Group | Sources | Filter |
+|---|---|---|
+| Google News searches | University cyberattacks, college ransomware, community colleges, ghost students & aid fraud, GLBA / FSA cybersecurity, campus phishing, campus IT outages, EDUCAUSE / REN-ISAC | None (scoped by query); phishing and outages use Cyber |
+| Higher-ed outlets | Higher Ed Dive, Inside Higher Ed, Campus Technology, EdTech Magazine Higher Ed, EdScoop, Internet2 | Cyber |
+| Security outlets | DataBreaches.net, Comparitech, The Record, Cybersecurity Dive, Bleeping Computer, The Hacker News, SecurityWeek, Dark Reading, Krebs on Security | Edu |
+| Vulnerability / advisories | Help Net Security, CISA Advisories (ICS advisories excluded), CISA News | Impact |
+
+Filters:
+- **None:** keep everything, tagged Higher Ed.
+- **Cyber:** keep stories with a cybersecurity or IT-security term, tagged Higher Ed.
+- **Edu:** keep higher-ed stories (Higher Ed), plus stories about the campus technology stack (Threat Watch).
+- **Impact:** like Edu, but the higher-ed check also only looks at the headline and lead.
+
+Matching is on whole words. When the same story arrives from several feeds, the first feed in `FEEDS` wins, so higher-ed sources come first. EDUCAUSE, the Chronicle and REN-ISAC block automated fetches or publish no feed, so they're covered by Google News searches.
+
+To add a source, add an entry to `FEEDS` in `lib/aggregator.js`.
+
+## Running locally
+
+```bash
+npm install
+npm run dev      # http://localhost:3000, auto-restarts on change
+npm run build    # produce the static site in dist/
+```
+
+## Running with Docker
+
+```bash
+docker compose up -d --build
+```
+
+Available at `http://localhost:30305` (bound to loopback).
+
+## Environment variables
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `PORT` | `3000` | Server port (Docker sets `30305`) |
+| `MAX_AGE_DAYS` | `365` | Drop articles older than this. Google News searches otherwise return stories years old |
+| `MIN_ARTICLES` | `20` | Static build fails, and skips the deploy, below this many articles |
+
+## Deployment (Cloudflare Pages)
+
+- Pages project: `hied-news`, production branch `main`.
+- GitHub repo secrets: `CLOUDFLARE_API_TOKEN` (Pages edit permission) and `CLOUDFLARE_ACCOUNT_ID`.
+- The workflow runs on push to `main`, every 30 minutes, and on manual dispatch (**Actions → Build & deploy → Run workflow**).
+- Custom domain: `hied-news.edtechirl.com`, a proxied CNAME to `hied-news.pages.dev` in the edtechirl.com zone, plus a custom domain on the Pages project.
+- **Keepalive:** GitHub disables scheduled workflows in public repos after 60 days with no commits. When the last commit is 25+ days old, the scheduled run pushes an empty `keepalive` commit as `github-actions[bot]`. Run the workflow by hand with **force_keepalive** to test it.
+
+## API (Docker / local server only)
+
+| Endpoint | Description |
+|---|---|
+| `GET /data/articles.json` | All cached articles (each has a `category`), plus `lastFetched` |
+| `GET /data/sources.json` | Configured source names |
+| `GET /api/articles` | Paginated list. Query params: `q`, `source`, `page`, `limit` (max 500) |
+| `GET /api/refresh` | Force a refresh (at most once per minute) |
+
+## Tech stack
+
+- Node.js 20 / Express (local server only)
+- [rss-parser](https://github.com/rbren/rss-parser)
+- Vanilla JS frontend
+- GitHub Actions + Cloudflare Pages (production), Docker (local)
